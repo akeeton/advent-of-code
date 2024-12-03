@@ -1,18 +1,53 @@
 open System.IO
 open System.Text.RegularExpressions
 
-let mapTuple2 f (a, b) = (f a, f b)
+type Token =
+    | Mul of int * int
+    | Do
+    | Dont
 
-let partOne (inputText: string): int =
-    let pattern = @"mul\((\d+),(\d+)\)"
+let tokenizeInput (inputText: string): Token seq =
+    let pattern = @"(mul|do|don't)\((?:(\d+),(\d+))?\)"
     seq {
         for m in Regex.Matches(inputText, pattern) do
-            yield m.Groups[1].Value, m.Groups[2].Value
+            yield m
     }
-    |> Seq.map (mapTuple2 int)
-    |> Seq.map (fun (a, b) -> a * b)
+    |> Seq.map (fun m ->
+        match m.Groups[1].Value with
+        | "mul" ->
+            (m.Groups[2].Value |> int, m.Groups[3].Value |> int)
+            |> Mul
+        | "do" -> Do
+        | "don't" -> Dont
+        | _ -> failwith "unexpected group"
+    )
+
+let partOne (tokens: Token seq): int =
+    tokens
+    |> Seq.map (function
+        | Mul (a, b) -> a * b
+        | _ -> 0
+    )
     |> Seq.sum
 
-let inputText = File.ReadAllText "input.txt"
+let partTwo (tokens: Token seq): int =
+    tokens
+    |> Seq.fold (fun (sum, doMuls) token ->
+        match token with
+        | Do -> (sum, true)
+        | Dont -> (sum, false)
+        | Mul (a, b) ->
+            let newSum =
+                match doMuls with
+                | true -> a * b + sum
+                | false -> sum
+            (newSum, doMuls)
+    ) (0, true)
+    |> fst
 
-printfn "Part one: %A" <| partOne inputText
+let tokens =
+    File.ReadAllText "input.txt"
+    |> tokenizeInput
+
+printfn "Part one: %d" <| partOne tokens
+printfn "Part two: %d" <| partTwo tokens
