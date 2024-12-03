@@ -17,7 +17,16 @@ mkdir -p "$PROJECT_PATH/.vscode"
 
 pushd ".vscode-templates"
 for f in ./*; do
-    echo "$f"
+    echo "Substituting environment variables in '$f'"
     envsubst "$SUBST_VARS" < "$f" > "$PROJECT_PATH/.vscode/$f"
+done
+popd
+
+pushd "$PROJECT_PATH"
+for f in ./*; do
+    if [ -f "$f" ]; then
+        echo "Removing BOM from '$f'"
+        dos2unix -r "$f"
+    fi
 done
 popd
