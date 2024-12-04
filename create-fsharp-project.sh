@@ -3,8 +3,12 @@
 # Fail on any error
 set -e
 
+echo "Deprecated!"
+echo "Use create-fsharp-solution.sh instead"
+echo "Deprecated!"
+
 if [[ $# -lt 2 ]] ; then
-    echo 'usage: create-fsharp-project.sh <year> <project-name>'
+    echo "usage: $0 <year> <project-name>"
     exit 1
 fi
 
