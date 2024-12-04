@@ -1,5 +1,3 @@
-﻿namespace Service
-
 type Matrix<'T> = 'T[,]
 module Matrix =
     let fromListOfRows (rows: 'T seq seq): Matrix<'T> =
